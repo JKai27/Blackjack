@@ -3,7 +3,7 @@ package org.example;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Player extends Hand {
+public class Player {
     private List<Hand> handList;
     private final String playerName;
     private int money;
@@ -11,15 +11,10 @@ public class Player extends Hand {
     private boolean doubledDown; // Tracks if the player has doubled down
 
     public Player(String playerName, int money) {
-        super();
         handList = new ArrayList<>();
         this.playerName = playerName;
         this.money = money;
         this.doubledDown = false; // Initialize as false
-    }
-
-    public void hit(Deck deck) {
-        addCard(deck.drawCard());
     }
 
     public void pushBet() {
@@ -28,12 +23,6 @@ public class Player extends Hand {
 
     public void stay() {
         System.out.println("Player doesn't want to continue the round and choose to stay");
-    }
-
-
-    // Check if the player can double down based on the hand value
-    public boolean isDoubleDownPossible() {
-        return calculateValue() >= 9 && calculateValue() <= 11 && cards.size() == 2;
     }
 
     // Player places a bet
@@ -47,6 +36,14 @@ public class Player extends Hand {
         }
     }
 
+
+    public boolean hasBlackJack() {
+        for (Hand hand : handList) {
+            return hand.calculateValue() == 21 && handList.size() == 2;
+        }
+        return false;
+    }
+
     // Player doubles their bet for double down
     public void doubleBet() {
         if (money >= bet) {
@@ -57,6 +54,7 @@ public class Player extends Hand {
             System.out.println("Not enough money to double the bet.");
         }
     }
+
 
     // Check if the player has doubled down
     public boolean hasDoubledDown() {
@@ -94,5 +92,9 @@ public class Player extends Hand {
 
     public List<Hand> getHandList() {
         return handList;
+    }
+
+    public void setBet(int bet) {
+        this.bet = bet;
     }
 }

@@ -14,6 +14,19 @@ public class Hand {
         cards.add(card);
     }
 
+    public void hit(Deck deck) {
+        addCard(deck.drawCard());
+    }
+
+    // Check if the player can double down based on the hand value
+    public boolean isDoubleDownPossible() {
+        return calculateValue() >= 9 && calculateValue() <= 11 && cards.size() == 2;
+    }
+
+    public boolean hasBlackJack() {
+        return calculateValue() == 21 && cards.size() == 1;
+    }
+
     public int calculateValue() {
         int totalValue = 0;
         int numberOfAces = 0;
@@ -30,6 +43,11 @@ public class Hand {
         }
         return totalValue;
     }
+
+    public List<Card> getCards() {
+        return cards;
+    }
+
 
     public void showHand() {
         for (Card card : cards) {
