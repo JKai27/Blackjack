@@ -6,9 +6,11 @@ import java.util.List;
 public class Player {
     private List<Hand> handList;
     private final String playerName;
-    private int money;
-    private int bet;
+    private double money;
+    private double bet;
+    private double insuranceBet;
     private boolean doubledDown; // Tracks if the player has doubled down
+    private boolean tookInsurance;
 
     public Player(String playerName, int money) {
         handList = new ArrayList<>();
@@ -26,7 +28,7 @@ public class Player {
     }
 
     // Player places a bet
-    public void placeBet(int amount) {
+    public void placeBet(double amount) {
         if (amount > 0 && amount <= money) {
             bet = amount;
             money -= amount;
@@ -55,19 +57,37 @@ public class Player {
         }
     }
 
+    // Player wins with the given payout ratio
+    public void winBet(double payoutRatio) {
+        double originalBet = doubledDown ? bet / 2 : bet;
+        double winnings = (originalBet * payoutRatio);
+        money += bet + winnings;
+        System.out.println("Congratulations! You have won " + winnings + " Euro!");
+        System.out.println(getPlayerName() + "'s total money after win: " + getMoney());
+    }
+
+    public void manageInsuranceBet(boolean wonInsurance) {
+        // Display the player's last balance
+        System.out.println("Your balance before insurance: " + money + " Euro");
+
+        if (wonInsurance) {
+            // Player wins the insurance
+            double insuranceWinnings = getInsuranceBet() * 2; // 2:1 payout for insurance
+            money += insuranceWinnings;
+            System.out.println("Your insurance bet paid out: " + insuranceWinnings + " Euro!");
+        } else {
+            // Player loses the insurance
+            money -= getInsuranceBet(); // Deduct the insurance bet
+            System.out.println("You lost the insurance bet.");
+        }
+
+        // Display the player's new balance
+        System.out.println("Your balance after insurance: " + money + " Euro");
+    }
 
     // Check if the player has doubled down
     public boolean hasDoubledDown() {
         return doubledDown;
-    }
-
-    // Player wins with the given payout ratio
-    public void winBet(double payoutRatio) {
-        int originalBet = doubledDown ? bet / 2 : bet;
-        int winnings = (int) (originalBet * payoutRatio);
-        money += bet + winnings;
-        System.out.println("Congratulations! You have won " + winnings + " Euro!");
-        System.out.println(getPlayerName() + "'s total money after win: " + getMoney());
     }
 
 
@@ -78,11 +98,11 @@ public class Player {
     }
 
     // Return the current bet
-    public int getBet() {
+    public double getBet() {
         return bet;
     }
 
-    public int getMoney() {
+    public double getMoney() {
         return money;
     }
 
@@ -94,7 +114,26 @@ public class Player {
         return handList;
     }
 
-    public void setBet(int bet) {
+    public void setBet(double bet) {
         this.bet = bet;
+    }
+
+    public void setInsuranceBet(double insuranceBet) {
+        this.insuranceBet = insuranceBet;
+    }
+
+    public double getInsuranceBet() {
+        return insuranceBet;
+    }
+
+    // Player takes Insurance against dealers Blackjack
+    public void takeInsurance() {
+        double insuranceBet = bet / 2;
+        tookInsurance = true;
+        setInsuranceBet(insuranceBet);
+    }
+
+    public void loseInsuranceBet() {
+        System.out.println("Player loses the bet of " + insuranceBet + " Euro.");
     }
 }

@@ -9,6 +9,7 @@ public class Game {
     private final Dealer dealer;
     private final int MIN_STAKE = 10;
     private final int MAX_STAKE = 500;
+    Scanner scanner = new Scanner(System.in);
 
     public Game(Player player) {
         this.player = player;
@@ -42,12 +43,38 @@ public class Game {
             return;
         }
 
+        // Insurance check
+        if (dealer.isFaceUpCardAce()) {
+            boolean takingInsurance = true;
+            while (takingInsurance) {
+                System.out.println("Dealer is showing Ace, do you want to take insurance? YES = y, NO = n");
+                String userInput = scanner.nextLine();
+                if (userInput.equalsIgnoreCase("y")) {
+                    player.setInsuranceBet(player.getBet() / 2); // Set the insurance bet
+                    takingInsurance = false; // Exit after taking insurance
+
+                    // Dealer draws for insurance
+                    boolean dealerHasBlackjack = dealer.drawForInsurance(deck);
+                    if (dealerHasBlackjack) {
+                        player.manageInsuranceBet(true); // Player wins insurance
+                        return; // End the round here
+                    } else {
+                        player.manageInsuranceBet(false); // Player loses insurance
+                        System.out.println("Continuing your turn...");
+                    }
+                } else if (userInput.equalsIgnoreCase("n")) {
+                    takingInsurance = false; // Exit if they don't want insurance
+                } else {
+                    System.out.println("Invalid input. Please enter 'y' or 'n'.");
+                }
+            }
+        }
+
         // Provide option to split if possible
         if (player.getHandList().get(0).canSplit()) {
             System.out.println("You can split your hand. Do you want to split? (y/n)");
-            Scanner scanner = new Scanner(System.in);
             if (scanner.next().equalsIgnoreCase("y")) {
-                split(); // update player's hand list with split hands and then call payersTurn()
+                split(); // update player's hand list with split hands and then call playersTurn()
             }
         }
 
@@ -68,11 +95,11 @@ public class Game {
             dealer.play(deck); // Dealer plays if none of the player's hands have busted
         }
 
-
         // Final hands and determine the outcome
         showFinalHands();
         determineWinner();
     }
+
 
     private boolean checkIfPlayerCanPlay() {
         if (player.getMoney() < MIN_STAKE) {
@@ -153,7 +180,7 @@ public class Game {
         hand2.hit(deck);
 
         // Duplicate bet for both new hands
-        int originalBet = player.getBet();
+        double originalBet = player.getBet();
         player.setBet(originalBet); // Set the bet for the current hand
         player.placeBet(originalBet); // Place the bet for the new hands
 
@@ -291,15 +318,3 @@ public class Game {
         return betAmount;
     }
 }
-/*
-
-        Hand originalHand = player.getHandList().stream()
-                .filter(Hand::canSplit)
-                .findFirst()
-                .orElse(null);
-
-
-                  if (player.getHandList().stream().noneMatch(Hand::isBust)) {
-            dealer.play(deck);
-        }
- */
